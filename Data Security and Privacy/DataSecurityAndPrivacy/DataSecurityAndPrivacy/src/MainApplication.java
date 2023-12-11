@@ -26,7 +26,11 @@ public class MainApplication {
     private static String Present_group;
     private JButton btnLogout;
 
+<<<<<<< HEAD
     // JDBC URL, username, and password of MySQL server
+=======
+    
+>>>>>>> 943bca12c730ea0b5afbcbea5a37211c2ee42c1b
     private static final String JDBC_URL = "jdbc:mysql://localhost:3306/security";
     private static final String DB_USER = "manager";
     private static final String DB_PASSWORD = "Chandu@30";
