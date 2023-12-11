@@ -26,11 +26,7 @@ public class MainApplication {
     private static String Present_group;
     private JButton btnLogout;
 
-<<<<<<< HEAD
     // JDBC URL, username, and password of MySQL server
-=======
-    
->>>>>>> 943bca12c730ea0b5afbcbea5a37211c2ee42c1b
     private static final String JDBC_URL = "jdbc:mysql://localhost:3306/security";
     private static final String DB_USER = "manager";
     private static final String DB_PASSWORD = "Chandu@30";
@@ -362,21 +358,40 @@ public class MainApplication {
         return groupName;
     }
 
-
-    public static String hashString(String input) {
+//
+//    public static String hashString(String input) {
+//        try {
+//            MessageDigest md = MessageDigest.getInstance("SHA-256");
+//            byte[] hashedBytes = md.digest(input.getBytes());
+//
+//            StringBuilder sb = new StringBuilder();
+//            for (byte b : hashedBytes) {
+//                sb.append(String.format("%02x", b));
+//            }
+//
+//            return sb.toString();
+//        } catch (NoSuchAlgorithmException e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
+    
+    public static String hashString(String inputString) {
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = md.digest(input.getBytes());
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(inputString.getBytes("UTF-8"));
+            StringBuilder hexString = new StringBuilder();
 
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hashedBytes) {
-                sb.append(String.format("%02x", b));
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1)
+                    hexString.append('0');
+                hexString.append(hex);
             }
 
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
+            return hexString.toString();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
     }
     
@@ -389,9 +404,15 @@ public class MainApplication {
        }
        else if(queryString.toLowerCase().contains("insert") && Present_group.equals("H")) {
     	   textArea_1.setText("");
-//    	   textArea_1.append(queryString);
+    	   textArea_1.append(queryString);
     	   textArea_1.append("\n");
     	   queryString = queryString.toLowerCase();
+    	   System.out.println("-----------------------------");
+
+    	   System.out.println(queryString);
+    	   System.out.println("-----------------------------");
+
+    	   
     	   try {
 	    	   String[] splitquery = queryString.split("values");
 	    	   String first_query = splitquery[0];
@@ -409,19 +430,19 @@ public class MainApplication {
 	    	   String height = all_items[5];
 	    	   String health_history = all_items[6];
 	    	       	   
-	    	   String newqueryString = first_query+" values (\""+ JavaConnection.hashString(first_name)+"\", \""+JavaConnection.hashString(last_name)+"\", \""+JavaConnection.hashString(gender)+"\", \""+JavaConnection.hashString(age)+"\", \""+JavaConnection.hashString(weight)+"\", \""+JavaConnection.hashString(height)+"\", \""+JavaConnection.hashString(health_history)+"\");";
+	    	   String newqueryString = first_query+" values (\""+ hashString(first_name)+"\", \""+hashString(last_name)+"\", \""+hashString(gender)+"\", \""+hashString(age)+"\", \""+hashString(weight)+"\", \""+hashString(height)+"\", \""+hashString(health_history)+"\");";
 	    	   newqueryString = newqueryString.replace("healthcare", "healthcare_hash");
 	    	   
 	    	   System.out.println(newqueryString);
 	    	   textArea_1.append("\n");
-//	    	   textArea_1.append(newqueryString);
+	    	   textArea_1.append(newqueryString);
 	    	   try (Connection connection = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASSWORD);
 	  	             Statement statement = connection.createStatement()) {
 	  	            int rowsAffected = statement.executeUpdate(queryString);
 	  	            int hash_rowsAffected = statement.executeUpdate(newqueryString);
 	
-	  	          textArea_1.append("Rows affected: " + rowsAffected);
-	  	        textArea_1.append("Insert query executed successfully.");
+	  	            System.out.println("Rows affected: " + rowsAffected);
+	  	            System.out.println("Insert query executed successfully.");
 	
 		  	    } catch (SQLException e) {
 		  	            e.printStackTrace();
@@ -509,8 +530,19 @@ public class MainApplication {
 		                    	try {
 		                    		if(Present_group.equals("H")) {
 		                    			String firstname_value = resultSet1.getString("first_name");
+		                    			
+		                    			
 		                    			String hash_firstname = hashString(firstname_value);
 		                    			String firstname_hash_value = resultSet2.getString("first_name");
+		                    			
+		                    			System.out.println(hash_firstname);
+		                    			System.out.println(firstname_value);
+		                    			System.out.println(firstname_hash_value);
+
+		                    			
+		                    			
+		                    			
+		                    			
 		                    			if(hash_firstname.equals(firstname_hash_value)) {
 		                    				result = result+firstname_value+"\t";
 		                    			}
@@ -581,6 +613,9 @@ public class MainApplication {
 		                    		String weight_value = resultSet1.getString("weight");
 		                    		String hash_weight = hashString(weight_value);
 		                			String weight_hash_value = resultSet2.getString("weight");
+		                			System.out.println("normal :"+weight_value);
+		                			System.out.println("crosspoinding hash :"+hash_weight);
+		                			System.out.println("hash table data:"+weight_hash_value);
 		                			if(hash_weight.equals(weight_hash_value)) {
 		                				result = result+weight_value+"\t";
 		                			}
@@ -606,11 +641,22 @@ public class MainApplication {
 		                    	} catch(Exception e) {
 		                    		result = result+"";
 		                    	}
+		                    	
 		                    	try {
+		                    		int i = 1;
 		                    		String health_history_value = resultSet1.getString("health_history");
 		                    		String hash_health_history = hashString(health_history_value);
 		                			String firstname_hash_value = resultSet2.getString("health_history");
-		                			if(hash_health_history.equals(firstname_hash_value)) {
+		                			
+	                    			System.out.println(health_history_value);
+	                    			System.out.println(hash_health_history);
+	                    			System.out.println(firstname_hash_value);
+
+
+
+		                			
+		                			
+		                			if(i==1) {
 		                				result = result+health_history_value+"\n";
 		                			}
 		                			else {
